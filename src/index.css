@@ -1,0 +1,56 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* InfoIMAGE brand */
+  --color-brand-blue: #2463d0;
+  --color-brand-navy: #242f42;
+  --color-brand-deep: #2e446b;
+  --color-brand-slate: #4e6ba1;
+  --color-brand-teal: #0ea5e9;
+  --color-brand-sky: #dfe8f6;
+
+  /* Neutral surface ramp */
+  --color-ink: #1a2233;
+  --color-ink-soft: #5a6478;
+  --color-line: #e6eaf2;
+  --color-canvas: #f5f7fb;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+  body {
+    margin: 0;
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* thin scrollbars for panels */
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: #c7cfde;
+  border-radius: 999px;
+}
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes flashNew {
+  0% {
+    background: #fff7d6;
+  }
+  100% {
+    background: transparent;
+  }
+}
+.flash-new {
+  animation: flashNew 1.6s ease-out;
+}
