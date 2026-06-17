@@ -87,6 +87,8 @@ Your available modules depend on the products your institution has enabled.`,
 2. Enter your **password**.
 3. Click **Log In**.
 
+![The Account Management V2 login page](login)
+
 If your institution uses Single Sign-On, you will be routed to your identity provider instead of seeing the password field.`,
   },
   {
@@ -181,6 +183,8 @@ Options typically include **Email**, **SMS/Text**, or both. Set or update a memb
 4. Set the delivery and notification preferences.
 5. Save.
 
+![The Create User form in Account Management](form)
+
 The new profile is immediately available for delivery-preference and document lookups.`,
   },
   {
@@ -243,6 +247,8 @@ Once a job has moved past the production cutoff, inserts are locked and can no l
 • **Active / Live** — currently attached to a running job
 • **Expired** — past its scheduled date range
 
+![The status column in the e-insert list](table)
+
 The status column tells you at a glance whether an insert still needs action.`,
   },
   {
@@ -275,6 +281,8 @@ The workflow is:
 2. Specify the **destination** account.
 3. Review the transfer summary.
 4. Confirm — the selected document history is reassigned to the destination account.
+
+![Selecting statements to transfer between accounts](wizard)
 
 Transfers are recorded in the audit log.`,
   },
@@ -327,7 +335,9 @@ Define a trigger, choose the template, and set the audience. When the triggering
 1. Open **Banner Management** and click **Create Banner**.
 2. Upload the banner image and add a click-through URL.
 3. Set the date range and audience.
-4. Submit for approval.`,
+4. Submit for approval.
+
+![The banner upload form](form)`,
   },
   {
     id: 'it-banner-targeting',
@@ -365,7 +375,9 @@ Define a trigger, choose the template, and set the audience. When the triggering
     category: 'Dashboard',
     title: 'Dashboard Overview',
     updated: D,
-    body: `The Dashboard is your landing page in InfoTRAC. It summarizes recent jobs, pending approvals, delivery health, and adoption at a glance, with quick links into each module.`,
+    body: `The Dashboard is your landing page in InfoTRAC. It summarizes recent jobs, pending approvals, delivery health, and adoption at a glance, with quick links into each module.
+
+![The InfoTRAC dashboard](dashboard)`,
   },
   {
     id: 'it-dash-job-status',
@@ -456,7 +468,9 @@ Define a trigger, choose the template, and set the audience. When the triggering
     updated: D,
     body: `To request a brand-new document type (a new statement, notice, or letter), submit a request through InfoCARE.
 
-Include the document's purpose, sample data, the desired layout or a reference design, and your target launch date. Your InfoIMAGE team will scope the work and respond with a timeline.`,
+Include the document's purpose, sample data, the desired layout or a reference design, and your target launch date. Your InfoIMAGE team will scope the work and respond with a timeline.
+
+![The new document request form in InfoCARE](form)`,
   },
   {
     id: 'care-design-change',

@@ -11,6 +11,7 @@ import {
 import type { HelpDoc, HelpIcon } from '../data/help'
 import { Card, SectionTitle, Badge } from '../components/ui'
 import { HelpBody } from '../components/HelpBody'
+import { TicketModal } from '../components/TicketModal'
 import {
   IconSearch,
   IconArticle,
@@ -21,6 +22,7 @@ import {
   IconThumbUp,
   IconThumbDown,
   IconSparkles,
+  IconChat,
 } from '../components/icons'
 
 const PRODUCT_ICON: Record<HelpIcon, (p: { className?: string }) => React.ReactElement> = {
@@ -42,6 +44,7 @@ export function Help() {
   const navigate = useNavigate()
   const [view, setView] = useState<View>({ kind: 'home' })
   const [q, setQ] = useState('')
+  const [showTicket, setShowTicket] = useState(false)
 
   const results = useMemo(() => (q.trim() ? searchDocs(q) : []), [q])
 
@@ -52,9 +55,19 @@ export function Help() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <SectionTitle sub="How-tos, FAQs, and product guides for InfoIMAGE's portal applications">
-        Help Site
-      </SectionTitle>
+      <div className="flex items-start justify-between gap-4">
+        <SectionTitle sub="How-tos, FAQs, and product guides for InfoIMAGE's portal applications">
+          Help Site
+        </SectionTitle>
+        <button
+          onClick={() => setShowTicket(true)}
+          className="flex shrink-0 items-center gap-2 rounded-lg bg-brand-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90"
+        >
+          <IconChat className="h-4 w-4" /> Open a ticket
+        </button>
+      </div>
+
+      {showTicket && <TicketModal onClose={() => setShowTicket(false)} />}
 
       {/* Global search */}
       <div className="relative mb-6">
@@ -103,6 +116,7 @@ export function Help() {
           onProduct={(id) => setView({ kind: 'product', productId: id })}
           onArticle={openArticle}
           onAskAI={() => navigate('/app/assistant', { state: { q: view.doc.title } })}
+          onOpenTicket={() => setShowTicket(true)}
         />
       )}
     </div>
@@ -249,15 +263,18 @@ function ArticleView({
   onProduct,
   onArticle,
   onAskAI,
+  onOpenTicket,
 }: {
   doc: HelpDoc
   onHome: () => void
   onProduct: (id: string) => void
   onArticle: (d: HelpDoc) => void
   onAskAI: () => void
+  onOpenTicket: () => void
 }) {
   const [vote, setVote] = useState<'up' | 'down' | null>(null)
   const siblings = docsFor(doc.productId, doc.category).filter((d) => d.id !== doc.id)
+  const isCare = doc.productId === 'infocare'
 
   return (
     <div>
@@ -304,16 +321,28 @@ function ArticleView({
             </div>
           </Card>
 
-          {/* AI nudge */}
-          <Card className="mt-4 flex items-center justify-between gap-4 bg-gradient-to-r from-brand-navy to-brand-deep p-4">
-            <div className="flex items-center gap-2 text-white">
-              <IconSparkles className="h-5 w-5 text-brand-teal" />
-              <span className="text-sm">Still stuck? Ask the AI assistant about “{doc.title}”.</span>
-            </div>
-            <button onClick={onAskAI} className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-brand-navy">
-              Ask AI
-            </button>
-          </Card>
+          {/* Contextual help: ticket for InfoCARE, AI for everything else */}
+          {isCare ? (
+            <Card className="mt-4 flex items-center justify-between gap-4 bg-gradient-to-r from-brand-blue to-brand-teal p-4">
+              <div className="flex items-center gap-2 text-white">
+                <IconChat className="h-5 w-5" />
+                <span className="text-sm">Ready to make this request? Open a ticket and your InfoIMAGE team will take it from here.</span>
+              </div>
+              <button onClick={onOpenTicket} className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-brand-navy">
+                Open a ticket
+              </button>
+            </Card>
+          ) : (
+            <Card className="mt-4 flex items-center justify-between gap-4 bg-gradient-to-r from-brand-navy to-brand-deep p-4">
+              <div className="flex items-center gap-2 text-white">
+                <IconSparkles className="h-5 w-5 text-brand-teal" />
+                <span className="text-sm">Still stuck? Ask the AI assistant about “{doc.title}”.</span>
+              </div>
+              <button onClick={onAskAI} className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-brand-navy">
+                Ask AI
+              </button>
+            </Card>
+          )}
         </div>
 
         {/* articles in this section */}

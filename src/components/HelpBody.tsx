@@ -1,5 +1,8 @@
+import { HelpFigure } from './HelpFigure'
+
 /** Renders a help article body: blank-line paragraphs, "• " bullets,
- *  "1. " numbered steps, "## " subheads, and **bold** spans. */
+ *  "1. " numbered steps, "## " subheads, **bold** spans, and
+ *  "![caption](kind)" figures (simulated screenshots). */
 export function HelpBody({ body }: { body: string }) {
   const blocks = body.split('\n').filter((l) => l.trim().length > 0)
   const out: React.ReactNode[] = []
@@ -40,7 +43,11 @@ export function HelpBody({ body }: { body: string }) {
     const bullet = line.match(/^[•\-]\s+(.*)$/)
     const step = line.match(/^\d+\.\s+(.*)$/)
     const head = line.match(/^##\s+(.*)$/)
-    if (bullet) {
+    const fig = line.match(/^!\[(.*)\]\(([a-z-]+)\)$/)
+    if (fig) {
+      flush()
+      out.push(<HelpFigure key={`fig-${out.length}`} kind={fig[2]} caption={fig[1] || undefined} />)
+    } else if (bullet) {
       if (!list || list.kind !== 'ul') {
         flush()
         list = { kind: 'ul', items: [] }
