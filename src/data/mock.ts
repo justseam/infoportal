@@ -3,7 +3,6 @@ import type {
   Persona,
   Doc,
   Invoice,
-  HelpArticle,
   AuditEntry,
   Notification,
 } from './types'
@@ -276,50 +275,7 @@ export const INVOICES: Invoice[] = [
   ]),
 ]
 
-// ---- Help articles ------------------------------------------------------
-
-export const HELP: HelpArticle[] = [
-  {
-    id: 'h-estmt-enroll',
-    title: 'How to enroll members in eStatements+',
-    category: 'eStatements+',
-    excerpt: 'Step-by-step enrollment flow, bulk opt-in, and email capture best practices.',
-    body: 'Members can be enrolled via the InfoTRAC admin console or through your online banking SSO hand-off. For bulk opt-in campaigns, upload a member email file (CSV) under Account Management → Enrollment. Always verify email deliverability before a mass send.',
-    tags: ['eStatements+', 'enrollment', 'how-to'],
-  },
-  {
-    id: 'h-trac-jobstatus',
-    title: 'Reading the InfoTRAC Job Status dashboard',
-    category: 'InfoTRAC',
-    excerpt: 'Understand job states, SLA timers, and how to approve a proof.',
-    body: 'Each print/mail job moves through Composed → Proofed → Approved → Mailed. Approve proofs within the SLA window to avoid schedule slips. Use the filters to view by application (Statements, Notices, Tax).',
-    tags: ['InfoTRAC', 'job status', 'proof'],
-  },
-  {
-    id: 'h-enotif-setup',
-    title: 'Setting up eNotifications+ alerts',
-    category: 'eNotifications+',
-    excerpt: 'Configure triggered email/SMS alerts and manage bounce handling.',
-    body: 'Define alert triggers (statement ready, NSF, maturity) in Message Manager. Monitor the Notifications health panel for bounces; a high bounce rate usually means a stale email file.',
-    tags: ['eNotifications+', 'alerts', 'setup'],
-  },
-  {
-    id: 'h-tax-season',
-    title: 'Year-end tax form production checklist',
-    category: 'Tax Forms',
-    excerpt: 'Deadlines, IRS spec updates, and proofing steps for 1099/1098 season.',
-    body: 'Confirm payer info and TIN masking by mid-December. InfoIMAGE updates layouts to the current IRS spec each year — approve the layout proof before the production cutoff to meet the January 31 mailing deadline.',
-    tags: ['Tax Forms', '1099', '1098', 'deadline'],
-  },
-  {
-    id: 'h-sso',
-    title: 'Configuring SSO into InfoPORTAL',
-    category: 'Security',
-    excerpt: 'SAML/OAuth2 setup, role mapping, and troubleshooting login loops.',
-    body: 'InfoPORTAL authenticates via your InfoTRAC SSO. Map your IdP groups to portal roles (Help, Document, Admin). Login loops are almost always a clock-skew or audience-URI mismatch in the SAML assertion.',
-    tags: ['Security', 'SSO', 'SAML', 'login'],
-  },
-]
+// Help content lives in ./help.ts (modeled on the InfoIMAGE Help Portal).
 
 // ---- Audit log ----------------------------------------------------------
 

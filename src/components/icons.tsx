@@ -98,3 +98,26 @@ export const IconChevron = ({ className }: P) => (
     <path d="m9 6 6 6-6 6" />
   </svg>
 )
+export const IconArticle = ({ className }: P) => (
+  <svg {...base(className)}>
+    <path d="M7 3h7l5 5v13a0 0 0 0 1 0 0H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+    <path d="M13 3v5h5M9 13h6M9 17h4" />
+  </svg>
+)
+export const IconThumbUp = ({ className }: P) => (
+  <svg {...base(className)}>
+    <path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z" />
+    <path d="M7 11l4-8a2 2 0 0 1 2 2v4h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 16.8 20H7" />
+  </svg>
+)
+export const IconThumbDown = ({ className }: P) => (
+  <svg {...base(className)}>
+    <path d="M7 13V4H4a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1z" />
+    <path d="M7 13l4 8a2 2 0 0 0 2-2v-4h5a2 2 0 0 0 2-2.3l-1.2-6A2 2 0 0 0 16.8 4H7" />
+  </svg>
+)
+export const IconChat = ({ className }: P) => (
+  <svg {...base(className)}>
+    <path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l.8-5.5A8 8 0 1 1 21 12z" />
+  </svg>
+)

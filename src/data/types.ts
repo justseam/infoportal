@@ -80,15 +80,6 @@ export interface Invoice {
   total: number
 }
 
-export interface HelpArticle {
-  id: string
-  title: string
-  category: string
-  excerpt: string
-  body: string
-  tags: string[]
-}
-
 export interface AuditEntry {
   id: string
   time: string

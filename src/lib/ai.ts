@@ -1,5 +1,6 @@
 import type { Doc, DocVersion, Invoice } from '../data/types'
-import { DOCS, INVOICES, HELP, CLIENTS, MONTH_LABEL } from '../data/mock'
+import { DOCS, INVOICES, CLIENTS, MONTH_LABEL } from '../data/mock'
+import { searchDocs, productName } from '../data/help'
 
 export interface AICite {
   docId: string
@@ -29,7 +30,7 @@ const SUGGESTIONS = [
   'Compare our print vs postage spend over the last 5 months',
   'When did the NSF notice design last change?',
   'How much have we spent on eStatements+ this year?',
-  'How do I enroll members in eStatements+?',
+  'What are the InfoTRAC password requirements?',
 ]
 
 function fmtUSD(n: number) {
@@ -214,13 +215,17 @@ function answerFind(q: string, clientId: string | null): AIResponse | null {
 }
 
 function answerHelp(q: string): AIResponse | null {
-  const words = q.toLowerCase()
-  const hit = HELP.find((h) =>
-    (h.title + ' ' + h.tags.join(' ') + ' ' + h.category).toLowerCase().split(/\W+/).some((w) => w.length > 3 && words.includes(w)),
-  )
-  if (!hit) return null
+  const hits = searchDocs(q)
+  if (!hits.length) return null
+  const hit = hits[0]
+  // a short snippet of the body (first paragraph / few lines)
+  const snippet = hit.body
+    .split('\n')
+    .filter((l) => l.trim())
+    .slice(0, 6)
+    .join('\n')
   return {
-    text: `From the **${hit.category}** help guide — *${hit.title}*:\n\n${hit.body}`,
+    text: `From the **${productName(hit.productId)} · ${hit.category}** help guide — *${hit.title}*:\n\n${snippet}`,
     cites: [],
     suggestions: SUGGESTIONS,
   }

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../state/session'
-import { DOCS, INVOICES, HELP, CLIENTS, MONTH_LABEL } from '../data/mock'
+import { DOCS, INVOICES, CLIENTS, MONTH_LABEL } from '../data/mock'
+import { recentDocs, productName } from '../data/help'
 import { Card, FileBadge, SectionTitle, Badge } from '../components/ui'
 import { IconSparkles, IconSearch, IconChevron } from '../components/icons'
 
@@ -131,10 +132,10 @@ export function Dashboard() {
               <h2 className="font-bold text-brand-navy">Help &amp; resources</h2>
             </div>
             <div className="divide-y divide-line">
-              {HELP.slice(0, 3).map((h) => (
+              {recentDocs(undefined, 3).map((h) => (
                 <button key={h.id} onClick={() => navigate('/app/help')} className="block w-full px-5 py-3 text-left hover:bg-canvas">
                   <div className="text-sm font-semibold text-brand-navy">{h.title}</div>
-                  <div className="text-xs text-ink-soft">{h.category}</div>
+                  <div className="text-xs text-ink-soft">{productName(h.productId)} · {h.category}</div>
                 </button>
               ))}
             </div>
