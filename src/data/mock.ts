@@ -215,6 +215,400 @@ export const DOCS: Doc[] = [
       { v: 1, date: '2024-06-15', author: 'Legal — InfoIMAGE', sizeKB: 530, note: 'Executed MSA, 2-year term.' },
     ],
   },
+
+  // ── Summit — additional Statement Designs ────────────────────────────
+  {
+    id: 'd-summit-stmt-savings',
+    clientId: 'summit',
+    name: 'Savings & Money Market Statement — Design',
+    category: 'Statement Designs',
+    fileType: 'indd',
+    tags: ['statement', 'savings', 'money market', 'design'],
+    versions: [
+      { v: 1, date: '2024-03-18', author: 'InfoIMAGE Composition', sizeKB: 3760, note: 'Initial savings/MMA layout.' },
+      { v: 2, date: '2025-02-26', author: 'InfoIMAGE Composition', sizeKB: 3820, note: 'Added dividend YTD summary and tiered-rate table.' },
+      { v: 3, date: '2026-03-30', author: 'InfoIMAGE Composition', sizeKB: 3905, note: 'Brand refresh to match monthly statement v3 palette.' },
+    ],
+  },
+  {
+    id: 'd-summit-stmt-heloc',
+    clientId: 'summit',
+    name: 'HELOC Statement — Design',
+    category: 'Statement Designs',
+    fileType: 'indd',
+    tags: ['statement', 'heloc', 'lending', 'design'],
+    versions: [
+      { v: 1, date: '2024-10-09', author: 'InfoIMAGE Composition', sizeKB: 4080, note: 'Initial HELOC statement with draw/repayment summary.' },
+      { v: 2, date: '2025-09-22', author: 'InfoIMAGE Composition', sizeKB: 4145, note: 'Added variable-rate disclosure and available-credit bar.' },
+    ],
+  },
+  {
+    id: 'd-summit-stmt-mortgage',
+    clientId: 'summit',
+    name: 'Mortgage Statement — Design',
+    category: 'Statement Designs',
+    fileType: 'indd',
+    tags: ['statement', 'mortgage', 'lending', 'design'],
+    versions: [
+      { v: 1, date: '2024-06-04', author: 'InfoIMAGE Composition', sizeKB: 4220, note: 'Initial layout per CFPB periodic-statement rule.' },
+      { v: 2, date: '2025-03-11', author: 'InfoIMAGE Composition', sizeKB: 4260, note: 'Escrow shortage messaging block added.' },
+      { v: 3, date: '2025-12-08', author: 'InfoIMAGE Composition', sizeKB: 4290, note: 'Delinquency notice box reformatted for clarity.' },
+    ],
+  },
+  {
+    id: 'd-summit-stmt-escrow',
+    clientId: 'summit',
+    name: 'Annual Escrow Analysis — Design',
+    category: 'Statement Designs',
+    fileType: 'indd',
+    tags: ['statement', 'escrow', 'mortgage', 'annual'],
+    versions: [
+      { v: 1, date: '2025-01-15', author: 'InfoIMAGE Composition', sizeKB: 3680, note: 'Initial annual escrow analysis layout.' },
+      { v: 2, date: '2026-01-12', author: 'InfoIMAGE Composition', sizeKB: 3710, note: 'Added projected vs actual disbursement chart.' },
+    ],
+  },
+
+  // ── Summit — additional Notice Designs ───────────────────────────────
+  {
+    id: 'd-summit-notice-privacy',
+    clientId: 'summit',
+    name: 'Annual Privacy Notice — Design',
+    category: 'Notice Designs',
+    fileType: 'pdf',
+    tags: ['notice', 'privacy', 'compliance', 'annual'],
+    versions: [
+      { v: 1, date: '2024-04-22', author: 'InfoIMAGE Composition', sizeKB: 186, note: 'Initial GLBA model privacy form.' },
+      { v: 2, date: '2025-04-20', author: 'InfoIMAGE Composition', sizeKB: 188, note: 'Updated opt-out phone number and effective date.' },
+      { v: 3, date: '2026-04-18', author: 'InfoIMAGE Composition', sizeKB: 190, note: 'Refreshed sharing table; added online opt-out link.' },
+    ],
+  },
+  {
+    id: 'd-summit-notice-ratechange',
+    clientId: 'summit',
+    name: 'Rate Change Notice — Design',
+    category: 'Notice Designs',
+    fileType: 'pdf',
+    tags: ['notice', 'rate change', 'deposits'],
+    versions: [
+      { v: 1, date: '2024-05-30', author: 'InfoIMAGE Composition', sizeKB: 172, note: 'Initial deposit rate change notice.' },
+      { v: 2, date: '2025-10-03', author: 'InfoIMAGE Composition', sizeKB: 176, note: 'Added APY comparison table.' },
+    ],
+  },
+  {
+    id: 'd-summit-notice-adverse',
+    clientId: 'summit',
+    name: 'Adverse Action Notice — Design',
+    category: 'Notice Designs',
+    fileType: 'pdf',
+    tags: ['notice', 'adverse action', 'lending', 'compliance'],
+    versions: [
+      { v: 1, date: '2024-08-14', author: 'InfoIMAGE Composition', sizeKB: 196, note: 'Initial ECOA/FCRA adverse action layout.' },
+      { v: 2, date: '2025-07-29', author: 'InfoIMAGE Composition', sizeKB: 201, note: 'Added credit-score disclosure section.' },
+      { v: 3, date: '2026-05-19', author: 'InfoIMAGE Composition', sizeKB: 203, note: 'Reasons-for-denial list reformatted to checkboxes.' },
+    ],
+  },
+  {
+    id: 'd-summit-notice-dormancy',
+    clientId: 'summit',
+    name: 'Dormancy / Escheatment Notice — Design',
+    category: 'Notice Designs',
+    fileType: 'pdf',
+    tags: ['notice', 'dormancy', 'escheatment', 'compliance'],
+    versions: [
+      { v: 1, date: '2025-02-11', author: 'InfoIMAGE Composition', sizeKB: 168, note: 'Initial pre-escheatment outreach notice.' },
+    ],
+  },
+
+  // ── Summit — additional Tax Forms ────────────────────────────────────
+  {
+    id: 'd-summit-tax-1099r',
+    clientId: 'summit',
+    name: '1099-R Retirement Distribution — Layout',
+    category: 'Tax Forms',
+    fileType: 'pdf',
+    tags: ['tax', '1099-r', 'ira', 'year-end'],
+    versions: [
+      { v: 1, date: '2024-12-19', author: 'InfoIMAGE Composition', sizeKB: 159, note: 'TY2024 layout per IRS spec.' },
+      { v: 2, date: '2025-12-17', author: 'InfoIMAGE Composition', sizeKB: 161, note: 'TY2025 — distribution-code box realignment.' },
+    ],
+  },
+  {
+    id: 'd-summit-tax-5498',
+    clientId: 'summit',
+    name: '5498 IRA Contribution — Layout',
+    category: 'Tax Forms',
+    fileType: 'pdf',
+    tags: ['tax', '5498', 'ira', 'contribution'],
+    versions: [
+      { v: 1, date: '2025-04-08', author: 'InfoIMAGE Composition', sizeKB: 157, note: 'TY2024 contribution statement layout.' },
+      { v: 2, date: '2026-04-07', author: 'InfoIMAGE Composition', sizeKB: 158, note: 'TY2025 — FMV box clarification.' },
+    ],
+  },
+  {
+    id: 'd-summit-tax-1099misc',
+    clientId: 'summit',
+    name: '1099-MISC — Layout',
+    category: 'Tax Forms',
+    fileType: 'pdf',
+    tags: ['tax', '1099-misc', 'year-end'],
+    versions: [
+      { v: 1, date: '2025-12-22', author: 'InfoIMAGE Composition', sizeKB: 156, note: 'TY2025 layout per IRS spec.' },
+    ],
+  },
+
+  // ── Summit — Statements (production runs / proofs) ───────────────────
+  {
+    id: 'd-summit-stmt-run-2026-05',
+    clientId: 'summit',
+    name: 'Monthly Statement Run — May 2026',
+    category: 'Statements',
+    fileType: 'pdf',
+    tags: ['statements', 'production', 'proof', 'monthly'],
+    versions: [
+      { v: 1, date: '2026-05-31', author: 'InfoIMAGE Production', sizeKB: 28400, note: 'May 2026 cycle — 138,142 statements composed.' },
+      { v: 2, date: '2026-06-01', author: 'InfoIMAGE Production', sizeKB: 28410, note: 'Reprint batch — 312 address corrections.' },
+    ],
+  },
+  {
+    id: 'd-summit-stmt-run-2026-04',
+    clientId: 'summit',
+    name: 'Monthly Statement Run — April 2026',
+    category: 'Statements',
+    fileType: 'pdf',
+    tags: ['statements', 'production', 'proof', 'monthly'],
+    versions: [
+      { v: 1, date: '2026-04-30', author: 'InfoIMAGE Production', sizeKB: 29100, note: 'April 2026 cycle — 144,038 statements composed.' },
+    ],
+  },
+  {
+    id: 'd-summit-stmt-tax-run-2026',
+    clientId: 'summit',
+    name: 'Year-End Tax Statement Run — TY2025',
+    category: 'Statements',
+    fileType: 'pdf',
+    tags: ['statements', 'tax', 'year-end', 'production'],
+    versions: [
+      { v: 1, date: '2026-01-28', author: 'InfoIMAGE Production', sizeKB: 41200, note: 'TY2025 combined tax mailing — 1099-INT/R, 1098, 5498.' },
+      { v: 2, date: '2026-02-14', author: 'InfoIMAGE Production', sizeKB: 4120, note: 'Corrected-form batch (C) — 86 records.' },
+    ],
+  },
+
+  // ── Summit — Assets ──────────────────────────────────────────────────
+  {
+    id: 'd-summit-asset-logo',
+    clientId: 'summit',
+    name: 'Brand Logo Pack',
+    category: 'Assets',
+    fileType: 'png',
+    tags: ['asset', 'logo', 'brand'],
+    versions: [
+      { v: 1, date: '2024-02-05', author: 'Summit CU Marketing', sizeKB: 2240, note: 'Primary, reversed, and mono logos (PNG/SVG/EPS).' },
+      { v: 2, date: '2025-06-10', author: 'Summit CU Marketing', sizeKB: 2390, note: 'Updated to new brand green; added favicon set.' },
+    ],
+  },
+  {
+    id: 'd-summit-asset-insert-autoloan',
+    clientId: 'summit',
+    name: 'Marketing Insert — Spring Auto Loan',
+    category: 'Assets',
+    fileType: 'pdf',
+    tags: ['asset', 'insert', 'marketing', 'auto loan'],
+    versions: [
+      { v: 1, date: '2026-02-20', author: 'Summit CU Marketing', sizeKB: 1180, note: 'Spring auto-loan promo, 4.99% APR offer.' },
+      { v: 2, date: '2026-03-02', author: 'InfoIMAGE Composition', sizeKB: 1190, note: 'Production-ready — bleed/safe-zone corrected.' },
+    ],
+  },
+  {
+    id: 'd-summit-asset-envelope',
+    clientId: 'summit',
+    name: 'Outer Envelope Artwork — #10',
+    category: 'Assets',
+    fileType: 'pdf',
+    tags: ['asset', 'envelope', 'print'],
+    versions: [
+      { v: 1, date: '2024-02-09', author: 'InfoIMAGE Composition', sizeKB: 740, note: '#10 outer with logo and return address.' },
+    ],
+  },
+  {
+    id: 'd-summit-asset-banner-app',
+    clientId: 'summit',
+    name: 'eStatement Banner — Mobile App Promo',
+    category: 'Assets',
+    fileType: 'jpg',
+    tags: ['asset', 'banner', 'eStatements+', 'mobile'],
+    versions: [
+      { v: 1, date: '2025-05-14', author: 'Summit CU Marketing', sizeKB: 320, note: 'Initial mobile-app download banner.' },
+      { v: 2, date: '2026-01-20', author: 'Summit CU Marketing', sizeKB: 336, note: 'Refreshed creative; added app-store badges.' },
+    ],
+  },
+
+  // ── Summit — more Contracts / SOWs / Legal ───────────────────────────
+  {
+    id: 'd-summit-baa',
+    clientId: 'summit',
+    name: 'Business Associate Agreement (BAA)',
+    category: 'Contracts',
+    fileType: 'pdf',
+    tags: ['contract', 'baa', 'privacy'],
+    versions: [
+      { v: 1, date: '2023-11-01', author: 'Legal — InfoIMAGE', sizeKB: 280, note: 'Executed alongside MSA.' },
+    ],
+  },
+  {
+    id: 'd-summit-sow-enotif',
+    clientId: 'summit',
+    name: 'SOW — eNotifications+ Rollout',
+    category: 'SOWs',
+    fileType: 'docx',
+    tags: ['sow', 'eNotifications+', 'implementation'],
+    versions: [
+      { v: 1, date: '2025-08-11', author: 'PMO — InfoIMAGE', sizeKB: 298, note: 'Draft scope — email + SMS alerts.' },
+      { v: 2, date: '2025-08-25', author: 'PMO — InfoIMAGE', sizeKB: 312, note: 'Signed — added bounce-handling and reporting.' },
+    ],
+  },
+  {
+    id: 'd-summit-sow-tax',
+    clientId: 'summit',
+    name: 'SOW — Year-End Tax Forms Setup',
+    category: 'SOWs',
+    fileType: 'docx',
+    tags: ['sow', 'tax', 'implementation'],
+    versions: [
+      { v: 1, date: '2024-09-30', author: 'PMO — InfoIMAGE', sizeKB: 264, note: 'Signed — 1099/1098/5498 program setup.' },
+    ],
+  },
+  {
+    id: 'd-summit-pci',
+    clientId: 'summit',
+    name: 'PCI DSS Attestation of Compliance',
+    category: 'Legal',
+    fileType: 'pdf',
+    tags: ['security', 'pci', 'compliance'],
+    versions: [
+      { v: 1, date: '2024-09-15', author: 'Security — InfoIMAGE', sizeKB: 640, note: 'FY2024 AOC, Level 1 service provider.' },
+      { v: 2, date: '2025-09-12', author: 'Security — InfoIMAGE', sizeKB: 648, note: 'FY2025 AOC, Level 1 service provider.' },
+    ],
+  },
+  {
+    id: 'd-summit-bcp',
+    clientId: 'summit',
+    name: 'Disaster Recovery / BCP Summary',
+    category: 'Legal',
+    fileType: 'pdf',
+    tags: ['security', 'bcp', 'disaster recovery'],
+    versions: [
+      { v: 1, date: '2025-10-01', author: 'Security — InfoIMAGE', sizeKB: 520, note: 'Annual DR/BCP summary with RTO/RPO targets.' },
+    ],
+  },
+
+  // ── Harbor Point — additional Statement Designs ──────────────────────
+  {
+    id: 'd-harbor-stmt-visa',
+    clientId: 'harbor',
+    name: 'Visa Credit Card Statement — Design',
+    category: 'Statement Designs',
+    fileType: 'indd',
+    tags: ['statement', 'credit card', 'visa', 'design'],
+    versions: [
+      { v: 1, date: '2024-09-10', author: 'InfoIMAGE Composition', sizeKB: 3850, note: 'Initial Visa Platinum layout.' },
+      { v: 2, date: '2025-10-21', author: 'InfoIMAGE Composition', sizeKB: 3920, note: 'Reg Z disclosure refresh.' },
+    ],
+  },
+  {
+    id: 'd-harbor-stmt-heloc',
+    clientId: 'harbor',
+    name: 'HELOC Statement — Design',
+    category: 'Statement Designs',
+    fileType: 'indd',
+    tags: ['statement', 'heloc', 'lending', 'design'],
+    versions: [
+      { v: 1, date: '2025-03-25', author: 'InfoIMAGE Composition', sizeKB: 4060, note: 'Initial HELOC statement layout.' },
+    ],
+  },
+
+  // ── Harbor Point — Notice Designs ────────────────────────────────────
+  {
+    id: 'd-harbor-notice-nsf',
+    clientId: 'harbor',
+    name: 'NSF / Overdraft Notice — Design',
+    category: 'Notice Designs',
+    fileType: 'pdf',
+    tags: ['notice', 'nsf', 'overdraft', 'compliance'],
+    versions: [
+      { v: 1, date: '2024-09-18', author: 'InfoIMAGE Composition', sizeKB: 208, note: 'Initial NSF notice template.' },
+      { v: 2, date: '2026-01-30', author: 'InfoIMAGE Composition', sizeKB: 215, note: 'Plain-language rewrite; updated fee schedule.' },
+    ],
+  },
+  {
+    id: 'd-harbor-notice-privacy',
+    clientId: 'harbor',
+    name: 'Annual Privacy Notice — Design',
+    category: 'Notice Designs',
+    fileType: 'pdf',
+    tags: ['notice', 'privacy', 'compliance', 'annual'],
+    versions: [
+      { v: 1, date: '2025-04-29', author: 'InfoIMAGE Composition', sizeKB: 184, note: 'GLBA model privacy form.' },
+    ],
+  },
+
+  // ── Harbor Point — additional Tax Forms ──────────────────────────────
+  {
+    id: 'd-harbor-tax-1098',
+    clientId: 'harbor',
+    name: '1098 Mortgage Interest — Layout',
+    category: 'Tax Forms',
+    fileType: 'pdf',
+    tags: ['tax', '1098', 'mortgage', 'year-end'],
+    versions: [
+      { v: 1, date: '2025-12-18', author: 'InfoIMAGE Composition', sizeKB: 158, note: 'TY2025 layout.' },
+    ],
+  },
+
+  // ── Harbor Point — Statements / Assets / SOW / Legal ─────────────────
+  {
+    id: 'd-harbor-stmt-run-2026-05',
+    clientId: 'harbor',
+    name: 'Monthly Statement Run — May 2026',
+    category: 'Statements',
+    fileType: 'pdf',
+    tags: ['statements', 'production', 'monthly'],
+    versions: [
+      { v: 1, date: '2026-05-31', author: 'InfoIMAGE Production', sizeKB: 17600, note: 'May 2026 cycle — 80,914 statements composed.' },
+    ],
+  },
+  {
+    id: 'd-harbor-asset-logo',
+    clientId: 'harbor',
+    name: 'Brand Logo Pack',
+    category: 'Assets',
+    fileType: 'png',
+    tags: ['asset', 'logo', 'brand'],
+    versions: [
+      { v: 1, date: '2024-07-01', author: 'Harbor Point Marketing', sizeKB: 1980, note: 'Primary and reversed logos.' },
+    ],
+  },
+  {
+    id: 'd-harbor-sow-estmt',
+    clientId: 'harbor',
+    name: 'SOW — eStatements+ Implementation',
+    category: 'SOWs',
+    fileType: 'docx',
+    tags: ['sow', 'eStatements+', 'implementation'],
+    versions: [
+      { v: 1, date: '2024-07-02', author: 'PMO — InfoIMAGE', sizeKB: 310, note: 'Signed — initial e-delivery rollout.' },
+    ],
+  },
+  {
+    id: 'd-harbor-soc2',
+    clientId: 'harbor',
+    name: 'InfoIMAGE SOC 2 Type II Report',
+    category: 'Legal',
+    fileType: 'pdf',
+    tags: ['security', 'soc2', 'compliance', 'audit'],
+    versions: [
+      { v: 1, date: '2025-10-01', author: 'Security — InfoIMAGE', sizeKB: 1840, note: 'FY2025 SOC 2 Type II, clean opinion.' },
+    ],
+  },
 ]
 
 // ---- Invoices (for billing comparisons) ---------------------------------
