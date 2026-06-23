@@ -2,13 +2,15 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../state/session'
 import { INVOICES, CLIENTS, MONTH_LABEL } from '../data/mock'
+import type { Invoice } from '../data/types'
 import { Card, SectionTitle, LineChart, Legend } from '../components/ui'
-import { IconSparkles } from '../components/icons'
+import { IconSparkles, IconDownload } from '../components/icons'
+import { downloadCsv, invoiceCsv, invoiceFilename, historyCsv } from '../lib/exportCsv'
 
 const SERVICES = ['Print', 'Postage', 'eStatements+', 'Composition', 'Insert Mgmt'] as const
 
 export function Billing() {
-  const { activeClientId } = useSession()
+  const { activeClientId, logActivity } = useSession()
   const navigate = useNavigate()
   const client = CLIENTS.find((c) => c.id === activeClientId)
 
@@ -16,6 +18,18 @@ export function Billing() {
     () => INVOICES.filter((i) => i.clientId === activeClientId).sort((a, b) => a.period.localeCompare(b.period)),
     [activeClientId],
   )
+
+  function exportMonth(inv: Invoice) {
+    if (!client) return
+    downloadCsv(invoiceFilename(client.name, inv.period), invoiceCsv(inv, client.name))
+    logActivity('download', `Exported invoice ${MONTH_LABEL[inv.period] ?? inv.period} (CSV)`)
+  }
+  function exportAll() {
+    if (!client) return
+    const slug = client.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    downloadCsv(`${slug}-billing-history.csv`, historyCsv(invoices, client.name))
+    logActivity('download', 'Exported full billing history (CSV)')
+  }
 
   const labels = invoices.map((i) => MONTH_LABEL[i.period] ?? i.period)
   const totalSeries = [{ label: 'Total', points: invoices.map((i) => ({ x: MONTH_LABEL[i.period] ?? i.period, y: i.total })) }]
@@ -75,7 +89,15 @@ export function Billing() {
       </div>
 
       <Card className="mt-5 overflow-hidden">
-        <div className="border-b border-line px-5 py-3.5 font-bold text-brand-navy">Invoice detail</div>
+        <div className="flex items-center justify-between border-b border-line px-5 py-3">
+          <span className="font-bold text-brand-navy">Invoice detail</span>
+          <button
+            onClick={exportAll}
+            className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm font-semibold text-brand-blue hover:bg-canvas"
+          >
+            <IconDownload className="h-4 w-4" /> Export all (CSV)
+          </button>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -85,6 +107,7 @@ export function Billing() {
                   <th key={s} className="px-3 py-2.5 text-right font-semibold">{s}</th>
                 ))}
                 <th className="px-5 py-2.5 text-right font-semibold">Total</th>
+                <th className="px-5 py-2.5 text-right font-semibold">Export</th>
               </tr>
             </thead>
             <tbody>
@@ -100,6 +123,15 @@ export function Billing() {
                     )
                   })}
                   <td className="px-5 py-2.5 text-right font-bold text-brand-navy">${inv.total.toLocaleString()}</td>
+                  <td className="px-5 py-2.5 text-right">
+                    <button
+                      onClick={() => exportMonth(inv)}
+                      title={`Export ${MONTH_LABEL[inv.period] ?? inv.period} invoice as CSV`}
+                      className="inline-flex items-center gap-1 rounded-md border border-line px-2 py-1 text-xs font-semibold text-brand-blue hover:bg-blue-50/50"
+                    >
+                      <IconDownload className="h-3.5 w-3.5" /> CSV
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

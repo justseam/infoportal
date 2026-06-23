@@ -84,11 +84,16 @@ export function LineChart({ series, unit = '$', height = 200 }: { series: { labe
           </text>
         </g>
       ))}
-      {xs.map((x, i) => (
-        <text key={x} x={xPos(i)} y={H - 8} textAnchor="middle" fontSize="10" fill="#94a0b8">
-          {x}
-        </text>
-      ))}
+      {xs.map((x, i) => {
+        // thin labels when crowded; always keep first and last
+        const step = Math.ceil(xs.length / 7)
+        if (xs.length > 7 && i % step !== 0 && i !== xs.length - 1) return null
+        return (
+          <text key={x} x={xPos(i)} y={H - 8} textAnchor="middle" fontSize="10" fill="#94a0b8">
+            {x}
+          </text>
+        )
+      })}
       {series.map((s, si) => {
         const d = s.points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xPos(i)} ${yPos(p.y)}`).join(' ')
         return (

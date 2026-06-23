@@ -619,6 +619,55 @@ function inv(clientId: string, period: string, lines: Invoice['lines']): Invoice
 }
 
 export const INVOICES: Invoice[] = [
+  inv('summit', '2025-06', [
+    { service: 'Print', qty: 182000, amount: 25480 },
+    { service: 'Postage', qty: 182000, amount: 34580 },
+    { service: 'eStatements+', qty: 78000, amount: 3900 },
+    { service: 'Composition', qty: 1, amount: 2200 },
+    { service: 'Insert Mgmt', qty: 182000, amount: 1820 },
+  ]),
+  inv('summit', '2025-07', [
+    { service: 'Print', qty: 179000, amount: 25060 },
+    { service: 'Postage', qty: 179000, amount: 34010 },
+    { service: 'eStatements+', qty: 82000, amount: 4100 },
+    { service: 'Composition', qty: 1, amount: 2200 },
+    { service: 'Insert Mgmt', qty: 179000, amount: 1790 },
+  ]),
+  inv('summit', '2025-08', [
+    { service: 'Print', qty: 176000, amount: 24640 },
+    { service: 'Postage', qty: 176000, amount: 33440 },
+    { service: 'eStatements+', qty: 85000, amount: 4250 },
+    { service: 'Composition', qty: 1, amount: 2200 },
+    { service: 'Insert Mgmt', qty: 176000, amount: 1760 },
+  ]),
+  inv('summit', '2025-09', [
+    { service: 'Print', qty: 173000, amount: 24220 },
+    { service: 'Postage', qty: 173000, amount: 32870 },
+    { service: 'eStatements+', qty: 89000, amount: 4450 },
+    { service: 'Composition', qty: 1, amount: 2200 },
+    { service: 'Insert Mgmt', qty: 173000, amount: 1730 },
+  ]),
+  inv('summit', '2025-10', [
+    { service: 'Print', qty: 171000, amount: 23940 },
+    { service: 'Postage', qty: 171000, amount: 32490 },
+    { service: 'eStatements+', qty: 92000, amount: 4600 },
+    { service: 'Composition', qty: 1, amount: 2200 },
+    { service: 'Insert Mgmt', qty: 171000, amount: 1710 },
+  ]),
+  inv('summit', '2025-11', [
+    { service: 'Print', qty: 170000, amount: 23800 },
+    { service: 'Postage', qty: 170000, amount: 32300 },
+    { service: 'eStatements+', qty: 94000, amount: 4700 },
+    { service: 'Composition', qty: 1, amount: 2200 },
+    { service: 'Insert Mgmt', qty: 170000, amount: 1700 },
+  ]),
+  inv('summit', '2025-12', [
+    { service: 'Print', qty: 173000, amount: 24220 },
+    { service: 'Postage', qty: 173000, amount: 32870 },
+    { service: 'eStatements+', qty: 95000, amount: 4750 },
+    { service: 'Composition', qty: 1, amount: 2450 },
+    { service: 'Insert Mgmt', qty: 173000, amount: 1730 },
+  ]),
   inv('summit', '2026-01', [
     { service: 'Print', qty: 168000, amount: 23520 },
     { service: 'Postage', qty: 168000, amount: 31920 },
@@ -655,6 +704,48 @@ export const INVOICES: Invoice[] = [
     { service: 'Insert Mgmt', qty: 138000, amount: 1380 },
   ]),
   // Harbor
+  inv('harbor', '2025-09', [
+    { service: 'Print', qty: 92000, amount: 12880 },
+    { service: 'Postage', qty: 92000, amount: 17480 },
+    { service: 'eStatements+', qty: 33000, amount: 1650 },
+    { service: 'Composition', qty: 1, amount: 1400 },
+  ]),
+  inv('harbor', '2025-10', [
+    { service: 'Print', qty: 90000, amount: 12600 },
+    { service: 'Postage', qty: 90000, amount: 17100 },
+    { service: 'eStatements+', qty: 35000, amount: 1750 },
+    { service: 'Composition', qty: 1, amount: 1400 },
+  ]),
+  inv('harbor', '2025-11', [
+    { service: 'Print', qty: 89000, amount: 12460 },
+    { service: 'Postage', qty: 89000, amount: 16910 },
+    { service: 'eStatements+', qty: 37000, amount: 1850 },
+    { service: 'Composition', qty: 1, amount: 1400 },
+  ]),
+  inv('harbor', '2025-12', [
+    { service: 'Print', qty: 91000, amount: 12740 },
+    { service: 'Postage', qty: 91000, amount: 17290 },
+    { service: 'eStatements+', qty: 38000, amount: 1900 },
+    { service: 'Composition', qty: 1, amount: 1400 },
+  ]),
+  inv('harbor', '2026-01', [
+    { service: 'Print', qty: 88000, amount: 12320 },
+    { service: 'Postage', qty: 88000, amount: 16720 },
+    { service: 'eStatements+', qty: 39000, amount: 1950 },
+    { service: 'Composition', qty: 1, amount: 1400 },
+  ]),
+  inv('harbor', '2026-02', [
+    { service: 'Print', qty: 86000, amount: 12040 },
+    { service: 'Postage', qty: 86000, amount: 16340 },
+    { service: 'eStatements+', qty: 40000, amount: 2000 },
+    { service: 'Composition', qty: 1, amount: 1400 },
+  ]),
+  inv('harbor', '2026-03', [
+    { service: 'Print', qty: 85000, amount: 11900 },
+    { service: 'Postage', qty: 85000, amount: 16150 },
+    { service: 'eStatements+', qty: 40500, amount: 2025 },
+    { service: 'Composition', qty: 1, amount: 1400 },
+  ]),
   inv('harbor', '2026-04', [
     { service: 'Print', qty: 84000, amount: 11760 },
     { service: 'Postage', qty: 84000, amount: 15960 },
@@ -691,6 +782,13 @@ export const NOTIFICATIONS: Notification[] = [
 ]
 
 export const MONTH_LABEL: Record<string, string> = {
+  '2025-06': 'Jun 2025',
+  '2025-07': 'Jul 2025',
+  '2025-08': 'Aug 2025',
+  '2025-09': 'Sep 2025',
+  '2025-10': 'Oct 2025',
+  '2025-11': 'Nov 2025',
+  '2025-12': 'Dec 2025',
   '2026-01': 'Jan 2026',
   '2026-02': 'Feb 2026',
   '2026-03': 'Mar 2026',
