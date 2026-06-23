@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '../state/session'
-import { askAI, SUGGESTIONS } from '../lib/ai'
+import { askAI, SUGGESTION_GROUPS } from '../lib/ai'
 import type { AIResponse } from '../lib/ai'
 import { Card, LineChart, Legend } from '../components/ui'
 import { IconSparkles, IconSend, IconChevron } from '../components/icons'
@@ -84,15 +84,22 @@ export function Assistant() {
         {turns.length === 0 && !thinking && (
           <Card className="p-5">
             <div className="text-sm font-semibold text-brand-navy">Try asking…</div>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              {SUGGESTIONS.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => submit(s)}
-                  className="rounded-lg border border-line px-3 py-2.5 text-left text-sm text-brand-navy transition hover:border-brand-blue hover:bg-blue-50/40"
-                >
-                  {s}
-                </button>
+            <div className="mt-4 space-y-4">
+              {SUGGESTION_GROUPS.map((group) => (
+                <div key={group.category}>
+                  <div className="mb-2 text-xs font-bold uppercase tracking-wide text-ink-soft">{group.category}</div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {group.prompts.map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => submit(s)}
+                        className="rounded-lg border border-line px-3 py-2.5 text-left text-sm text-brand-navy transition hover:border-brand-blue hover:bg-blue-50/40"
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </Card>
