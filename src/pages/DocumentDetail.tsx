@@ -2,16 +2,19 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useSession } from '../state/session'
 import { DOCS } from '../data/mock'
+import { hasFieldMap } from '../data/fieldMaps'
 import type { DocVersion } from '../data/types'
 import { Card, FileBadge, Badge } from '../components/ui'
 import { DocViewer } from '../components/DocViewer'
-import { IconChevron, IconClock, IconDownload } from '../components/icons'
+import { IconChevron, IconClock, IconDownload, IconLock } from '../components/icons'
+
+type ViewMode = 'sample' | 'mapping'
 
 export function DocumentDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { activeClientId, logActivity } = useSession()
-  const [viewing, setViewing] = useState<DocVersion | null>(null)
+  const { activeClientId, isStaff, logActivity } = useSession()
+  const [viewing, setViewing] = useState<{ version: DocVersion; mode: ViewMode } | null>(null)
   const [compare, setCompare] = useState<[number, number] | null>(null)
 
   const doc = DOCS.find((d) => d.id === id)
@@ -35,6 +38,7 @@ export function DocumentDetail() {
 
   const ordered = [...doc.versions].sort((a, b) => b.v - a.v)
   const latest = ordered[0]
+  const mappable = isStaff && hasFieldMap(doc) // staff-only field-mapping affordances
 
   const cmpA = compare ? doc.versions.find((v) => v.v === compare[0]) : null
   const cmpB = compare ? doc.versions.find((v) => v.v === compare[1]) : null
@@ -58,6 +62,14 @@ export function DocumentDetail() {
               <span className="flex items-center gap-1">
                 <IconClock className="h-3.5 w-3.5" /> {doc.versions.length} versions
               </span>
+              {mappable && (
+                <>
+                  <span>·</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-brand-blue">
+                    <IconLock className="h-3 w-3" /> Field mapping · internal
+                  </span>
+                </>
+              )}
             </div>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {doc.tags.map((t) => (
@@ -67,12 +79,22 @@ export function DocumentDetail() {
               ))}
             </div>
           </div>
-          <button
-            onClick={() => setViewing(latest)}
-            className="rounded-lg bg-brand-blue px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
-          >
-            Open latest
-          </button>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => setViewing({ version: latest, mode: 'sample' })}
+              className="rounded-lg bg-brand-blue px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+            >
+              Open latest
+            </button>
+            {mappable && (
+              <button
+                onClick={() => setViewing({ version: latest, mode: 'mapping' })}
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-brand-blue px-4 py-2 text-sm font-semibold text-brand-blue hover:bg-blue-50/50"
+              >
+                <IconLock className="h-3.5 w-3.5" /> Field mapping
+              </button>
+            )}
+          </div>
         </div>
       </Card>
 
@@ -119,10 +141,18 @@ export function DocumentDetail() {
                 </div>
                 <p className="mt-0.5 text-sm text-ink-soft">{v.note}</p>
                 <div className="mt-1 text-xs text-ink-soft">{v.author} · {v.sizeKB.toLocaleString()} KB</div>
-                <div className="mt-2 flex gap-2">
-                  <button onClick={() => setViewing(v)} className="rounded-lg border border-line px-2.5 py-1 text-xs font-semibold text-brand-blue hover:bg-canvas">
-                    View
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button onClick={() => setViewing({ version: v, mode: 'sample' })} className="rounded-lg border border-line px-2.5 py-1 text-xs font-semibold text-brand-blue hover:bg-canvas">
+                    View sample
                   </button>
+                  {mappable && (
+                    <button
+                      onClick={() => setViewing({ version: v, mode: 'mapping' })}
+                      className="flex items-center gap-1 rounded-lg border border-line px-2.5 py-1 text-xs font-semibold text-brand-blue hover:bg-blue-50/50"
+                    >
+                      <IconLock className="h-3.5 w-3.5" /> Field map
+                    </button>
+                  )}
                   <button
                     onClick={() => logActivity('download', `${doc.name} v${v.v}`)}
                     className="flex items-center gap-1 rounded-lg border border-line px-2.5 py-1 text-xs font-semibold text-ink-soft hover:bg-canvas"
@@ -144,7 +174,9 @@ export function DocumentDetail() {
         </div>
       </Card>
 
-      {viewing && <DocViewer doc={doc} version={viewing} onClose={() => setViewing(null)} />}
+      {viewing && (
+        <DocViewer doc={doc} version={viewing.version} initialMode={viewing.mode} onClose={() => setViewing(null)} />
+      )}
     </div>
   )
 }
