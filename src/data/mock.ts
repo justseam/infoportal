@@ -2,6 +2,7 @@ import type {
   Client,
   Persona,
   Doc,
+  DocVersion,
   Invoice,
   AuditEntry,
   Notification,
@@ -62,6 +63,193 @@ export const PERSONAS: Persona[] = [
 ]
 
 // ---- Documents with version history -------------------------------------
+
+// ---- Notice library + compliance sweep ----------------------------------
+//
+// Summit runs ~100 distinct notice designs. Rather than hand-author all of
+// them, the long tail is generated from a table of real notice types below.
+//
+// Dates here are RELATIVE TO TODAY, not hardcoded, so date questions ("what
+// changed in the last 30 days") stay true whenever the demo is run instead of
+// going stale the way fixed dates do.
+
+const DAY_MS = 86_400_000
+
+/** ISO (YYYY-MM-DD) date n days before today. */
+function daysAgo(n: number): string {
+  return new Date(Date.now() - n * DAY_MS).toISOString().slice(0, 10)
+}
+
+/** Deterministic PRNG so the repository looks identical on every reload. */
+function seeded(seed: number) {
+  return () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0
+    return seed / 4294967296
+  }
+}
+
+/**
+ * The notice that got MISSED in the compliance sweep — the needle the AI has
+ * to find. Peripheral enough to be plausibly overlooked, real enough to matter.
+ */
+export const SWEEP_MISSED_DOC_ID = 'd-summit-notice-safedeposit'
+
+/** Notice types making up Summit's long tail, as [slug, display name, ...tags]. */
+const NOTICE_TYPES: [string, string, string[]][] = [
+  ['safedeposit', 'Safe Deposit Box Rent Due Notice', ['safe deposit', 'billing', 'annual']],
+  ['overdraftfee', 'Overdraft Fee Assessment Notice', ['overdraft', 'fee', 'reg e']],
+  ['unauthtxn', 'Unauthorized Transaction Confirmation Notice', ['fraud', 'dispute', 'reg e']],
+  ['disputeack', 'Dispute Acknowledgement Notice', ['dispute', 'reg e', 'acknowledgement']],
+  ['disputeresolved', 'Dispute Resolution Outcome Notice', ['dispute', 'reg e', 'resolution']],
+  ['provcredit', 'Provisional Credit Notice', ['dispute', 'reg e', 'credit']],
+  ['achreturn', 'ACH Return Notification', ['ach', 'return', 'payments']],
+  ['achauth', 'ACH Authorization Revocation Notice', ['ach', 'authorization', 'reg e']],
+  ['wireconfirm', 'Wire Transfer Confirmation Notice', ['wire', 'confirmation', 'payments']],
+  ['wirerecall', 'Wire Recall Request Notice', ['wire', 'recall', 'payments']],
+  ['mobiledeposit', 'Mobile Deposit Hold Notice', ['mobile', 'deposit', 'hold']],
+  ['depositadj', 'Deposit Adjustment Notice', ['deposit', 'adjustment', 'correction']],
+  ['checkorder', 'Check Order Confirmation Notice', ['checks', 'order', 'confirmation']],
+  ['checkfraud', 'Check Fraud Alert Notice', ['fraud', 'checks', 'alert']],
+  ['garnishment', 'Account Garnishment / Levy Notice', ['legal', 'garnishment', 'levy']],
+  ['powerofattorney', 'Power of Attorney Acceptance Notice', ['legal', 'poa', 'authorization']],
+  ['beneficiary', 'Beneficiary Designation Confirmation', ['beneficiary', 'confirmation', 'estate']],
+  ['deceased', 'Deceased Member Account Notice', ['estate', 'deceased', 'legal']],
+  ['minorage', 'Minor Account Age-Out Notice', ['youth', 'age-out', 'conversion']],
+  ['jointowner', 'Joint Owner Removal Notice', ['ownership', 'joint', 'change']],
+  ['signaturecard', 'Signature Card Update Request', ['ownership', 'signature', 'request']],
+  ['idverify', 'Identity Verification Request Notice', ['bsa', 'cip', 'verification']],
+  ['cddrefresh', 'Customer Due Diligence Refresh Notice', ['bsa', 'cdd', 'compliance']],
+  ['w9request', 'W-9 / TIN Certification Request', ['tax', 'w-9', 'tin']],
+  ['backupwithhold', 'Backup Withholding Notice (B-Notice)', ['tax', 'irs', 'withholding']],
+  ['escheatprenote', 'Pre-Escheatment Contact Notice', ['dormancy', 'escheatment', 'state']],
+  ['inactivefee', 'Inactive Account Fee Notice', ['dormancy', 'fee', 'inactive']],
+  ['lowbalance', 'Low Balance Alert Notice', ['alert', 'balance', 'deposit']],
+  ['negbalance', 'Negative Balance Cure Notice', ['overdraft', 'collections', 'cure']],
+  ['chargeoff', 'Account Charge-Off Notice', ['collections', 'charge-off', 'loss']],
+  ['collections1', 'Collections First Contact Notice', ['collections', 'past due', 'fdcpa']],
+  ['collectionsfinal', 'Collections Final Demand Notice', ['collections', 'demand', 'fdcpa']],
+  ['repossession', 'Vehicle Repossession Notice', ['collections', 'auto', 'repossession']],
+  ['rightocure', 'Right to Cure Default Notice', ['collections', 'cure', 'lending']],
+  ['deficiency', 'Deficiency Balance Notice', ['collections', 'deficiency', 'auto']],
+  ['loanapproval', 'Loan Approval Notice', ['lending', 'approval', 'origination']],
+  ['loandenial', 'Loan Denial Notice', ['lending', 'denial', 'ecoa']],
+  ['counteroffer', 'Counteroffer Notice', ['lending', 'counteroffer', 'ecoa']],
+  ['incompleteapp', 'Incomplete Application Notice', ['lending', 'application', 'ecoa']],
+  ['appraisaldisc', 'Appraisal Disclosure Notice', ['mortgage', 'appraisal', 'ecoa']],
+  ['escrowanalysis', 'Escrow Analysis Statement Notice', ['mortgage', 'escrow', 'respa']],
+  ['escrowshortage', 'Escrow Shortage Notice', ['mortgage', 'escrow', 'shortage']],
+  ['pmicancel', 'PMI Cancellation Eligibility Notice', ['mortgage', 'pmi', 'hpa']],
+  ['forceplaced', 'Force-Placed Insurance Notice', ['mortgage', 'insurance', 'collateral']],
+  ['insurancelapse', 'Collateral Insurance Lapse Notice', ['lending', 'insurance', 'collateral']],
+  ['titlerelease', 'Title Release Notice', ['auto', 'title', 'payoff']],
+  ['lienrelease', 'Lien Release Confirmation', ['lending', 'lien', 'payoff']],
+  ['mortgagestatement', 'Mortgage Periodic Statement Notice', ['mortgage', 'periodic', 'reg z']],
+  ['heloc-draw', 'HELOC Draw Period Ending Notice', ['heloc', 'draw', 'lending']],
+  ['heloc-freeze', 'HELOC Account Freeze Notice', ['heloc', 'freeze', 'reg z']],
+  ['creditlimit', 'Credit Limit Change Notice', ['credit card', 'limit', 'reg z']],
+  ['aprchange', 'APR Change Notice', ['credit card', 'apr', 'reg z']],
+  ['minpayment', 'Minimum Payment Warning Notice', ['credit card', 'payment', 'card act']],
+  ['promoexpiry', 'Promotional Rate Expiration Notice', ['credit card', 'promo', 'reg z']],
+  ['cardreplace', 'Card Replacement Notice', ['debit card', 'replacement', 'card']],
+  ['carddeclined', 'Card Transaction Declined Notice', ['debit card', 'declined', 'alert']],
+  ['atmfee', 'ATM Fee Reimbursement Notice', ['atm', 'fee', 'reimbursement']],
+  ['travelnotice', 'Travel Notice Confirmation', ['debit card', 'travel', 'confirmation']],
+  ['recurringpay', 'Recurring Payment Update Notice', ['payments', 'recurring', 'reg e']],
+  ['billpaystop', 'Bill Pay Stop Request Confirmation', ['bill pay', 'stop', 'reg e']],
+  ['billpayfail', 'Bill Pay Payment Failure Notice', ['bill pay', 'failure', 'payments']],
+  ['p2pfail', 'P2P Transfer Failure Notice', ['p2p', 'failure', 'reg e']],
+  ['directdeposit', 'Direct Deposit Setup Confirmation', ['payroll', 'direct deposit', 'ach']],
+  ['payrollchange', 'Payroll Allocation Change Notice', ['payroll', 'allocation', 'change']],
+  ['iracontrib', 'IRA Contribution Confirmation', ['ira', 'contribution', 'retirement']],
+  ['iratransfer', 'IRA Transfer Confirmation Notice', ['ira', 'transfer', 'retirement']],
+  ['hsacontrib', 'HSA Contribution Limit Notice', ['hsa', 'contribution', 'irs']],
+  ['cdrenewal', 'CD Auto-Renewal Confirmation', ['certificate', 'renewal', 'deposit']],
+  ['cdpenalty', 'Early Withdrawal Penalty Notice', ['certificate', 'penalty', 'deposit']],
+  ['ratefloor', 'Deposit Rate Floor Change Notice', ['deposit', 'rate', 'change']],
+  ['feeschedule', 'Annual Fee Schedule Update Notice', ['fee', 'schedule', 'annual']],
+  ['membership', 'Membership Eligibility Confirmation', ['membership', 'eligibility', 'onboarding']],
+  ['welcomekit', 'New Member Welcome Notice', ['membership', 'onboarding', 'welcome']],
+  ['closureconfirm', 'Account Closure Confirmation Notice', ['closure', 'confirmation', 'deposit']],
+  ['statementsupp', 'Statement Suppression Confirmation', ['eStatements+', 'suppression', 'paperless']],
+  ['emailbounce', 'Email Delivery Failure Notice', ['eStatements+', 'bounce', 'delivery']],
+  ['returnmail', 'Returned Mail / Bad Address Notice', ['mail', 'address', 'undeliverable']],
+  ['branchclosure', 'Branch Closure Notification', ['branch', 'closure', 'member comms']],
+  ['databreach', 'Security Incident Notification', ['security', 'incident', 'breach']],
+]
+
+/** Build the generated long tail of Summit notice designs. */
+function buildNoticeLibrary(): Doc[] {
+  const rnd = seeded(20260901)
+  const authors = ['InfoIMAGE Composition', 'InfoIMAGE Client Services', 'Summit CU Compliance']
+  return NOTICE_TYPES.map(([slug, name, tags]) => {
+    // 1–3 versions of prior history, oldest first, spread across past years.
+    const count = 1 + Math.floor(rnd() * 3)
+    const versions: DocVersion[] = []
+    let age = 420 + Math.floor(rnd() * 480) // first version 14–30 months ago
+    for (let i = 0; i < count; i++) {
+      versions.push({
+        v: i + 1,
+        date: daysAgo(age),
+        author: authors[Math.floor(rnd() * authors.length)],
+        sizeKB: 140 + Math.floor(rnd() * 90),
+        note:
+          i === 0
+            ? `Initial ${name.toLowerCase()} template.`
+            : PRIOR_NOTES[Math.floor(rnd() * PRIOR_NOTES.length)],
+      })
+      age -= 90 + Math.floor(rnd() * 200)
+      if (age < 150) age = 150 + Math.floor(rnd() * 60)
+    }
+    return {
+      id: `d-summit-notice-${slug}`,
+      clientId: 'summit',
+      name: `${name} — Design`,
+      category: 'Notice Designs' as const,
+      fileType: 'pdf' as const,
+      tags: ['notice', ...tags],
+      versions,
+    }
+  })
+}
+
+const PRIOR_NOTES = [
+  'Logo and brand refresh applied.',
+  'Plain-language rewrite of member-facing copy.',
+  'Address block updated to new corporate HQ.',
+  'Accessibility pass — contrast and font size adjustments.',
+  'Spanish translation variant linked.',
+  'Reformatted for duplex printing to reduce postage.',
+  'Added QR code linking to the member portal.',
+  'Footer disclosures reordered per legal review.',
+]
+
+const SUMMIT_NOTICE_LIBRARY: Doc[] = buildNoticeLibrary()
+
+/**
+ * The compliance sweep: Summit's compliance team mandated a verbiage change
+ * across every notice design, and the update ran over the past few weeks.
+ * Every Summit notice gets a new version dated inside the last 30 days —
+ * except SWEEP_MISSED_DOC_ID, which was overlooked. That straggler is the
+ * whole point of the "what hasn't been updated?" question.
+ */
+function applyComplianceSweep(docs: Doc[]): void {
+  const rnd = seeded(77213)
+  for (const d of docs) {
+    if (d.clientId !== 'summit' || d.category !== 'Notice Designs') continue
+    if (d.id === SWEEP_MISSED_DOC_ID) continue
+    const last = d.versions[d.versions.length - 1]
+    d.versions.push({
+      v: last.v + 1,
+      date: daysAgo(4 + Math.floor(rnd() * 24)), // 4–27 days ago
+      author: 'Summit CU Compliance',
+      sizeKB: last.sizeKB + 2 + Math.floor(rnd() * 6),
+      note:
+        'Compliance verbiage update — error-resolution disclosure and dispute contact block refreshed per 2026 review.',
+    })
+  }
+  // Keep every document's versions in chronological order.
+  for (const d of docs) d.versions.sort((a, b) => a.date.localeCompare(b.date) || a.v - b.v)
+}
 
 export const DOCS: Doc[] = [
   // Summit — Statement Designs
@@ -852,7 +1040,10 @@ export const DOCS: Doc[] = [
       { v: 2, date: '2026-03-24', author: 'InfoIMAGE Composition', sizeKB: 152, note: 'Added how-to-revert-to-paper instructions.' },
     ],
   },
+  ...SUMMIT_NOTICE_LIBRARY,
 ]
+
+applyComplianceSweep(DOCS)
 
 // ---- Invoices (for billing comparisons) ---------------------------------
 

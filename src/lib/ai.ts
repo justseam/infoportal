@@ -1,4 +1,4 @@
-import type { Doc, DocVersion, Invoice } from '../data/types'
+import type { Doc, DocCategory, DocVersion, Invoice } from '../data/types'
 import { DOCS, INVOICES, CLIENTS, MONTH_LABEL } from '../data/mock'
 import { HELP_DOCS, productName } from '../data/help'
 
@@ -46,6 +46,7 @@ export const SUGGESTION_GROUPS: { category: string; prompts: string[] }[] = [
   {
     category: 'Across the repository',
     prompts: [
+      'Which notices have not been updated in the last 30 days?',
       'What documents changed in the last 90 days?',
       'How many documents do we have, by category?',
       'List all our tax form layouts',
@@ -290,25 +291,168 @@ function fmtDate(iso: string) {
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
 }
 
-/** "What changed recently / in the last 90 days" — most recently updated docs. */
+const DAY_MS = 86_400_000
+
+/** Days implied by "30 days" / "6 weeks" / "3 months" / "a year". Default 30. */
+function parseWindowDays(q: string): number {
+  const m = q.match(/(\d+)\s*(day|week|month|year)s?/i)
+  if (m) {
+    const n = parseInt(m[1], 10)
+    const unit = m[2].toLowerCase()
+    return unit === 'day' ? n : unit === 'week' ? n * 7 : unit === 'month' ? n * 30 : n * 365
+  }
+  if (/\ba (day|week|month|year)\b/i.test(q)) {
+    const u = q.match(/\ba (day|week|month|year)\b/i)![1].toLowerCase()
+    return u === 'day' ? 1 : u === 'week' ? 7 : u === 'month' ? 30 : 365
+  }
+  return 30
+}
+
+/** ISO date n days before today. */
+function cutoffISO(days: number): string {
+  return new Date(Date.now() - days * DAY_MS).toISOString().slice(0, 10)
+}
+
+/** Restrict to a document category when the question names one. */
+function categoryFilter(q: string): { cat: DocCategory; label: string } | null {
+  if (/\bnotices?\b|notice design/i.test(q)) return { cat: 'Notice Designs', label: 'notices' }
+  if (/\bstatements?\b/i.test(q) && !/statement design/i.test(q))
+    return { cat: 'Statement Designs', label: 'statement designs' }
+  if (/statement design/i.test(q)) return { cat: 'Statement Designs', label: 'statement designs' }
+  if (/tax form|1099|1098/i.test(q)) return { cat: 'Tax Forms', label: 'tax forms' }
+  if (/\bcontracts?\b/i.test(q)) return { cat: 'Contracts', label: 'contracts' }
+  if (/\bsows?\b|scope of work/i.test(q)) return { cat: 'SOWs', label: 'SOWs' }
+  return null
+}
+
+function humanWindow(days: number): string {
+  if (days % 365 === 0 && days >= 365) return days / 365 === 1 ? 'year' : `${days / 365} years`
+  if (days % 30 === 0 && days >= 30) return days / 30 === 1 ? '30 days' : `${days} days`
+  if (days % 7 === 0 && days >= 7) return days / 7 === 1 ? '7 days' : `${days} days`
+  return `${days} days`
+}
+
+function docLine(d: Doc): string {
+  const latest = d.versions[d.versions.length - 1]
+  const age = Math.round((Date.now() - new Date(latest.date + 'T00:00:00').getTime()) / DAY_MS)
+  return `• **${d.name}** — v${latest.v}, last updated ${fmtDate(latest.date)} (${age} days ago)`
+}
+
+/**
+ * NEGATIVE date question — "which notices have NOT been updated in the last 30
+ * days", "what's overdue / stale / missed". Returns documents whose most recent
+ * version is OLDER than the window. This is the compliance-sweep question: find
+ * what got skipped when everything else was updated.
+ */
+function answerStale(q: string, clientId: string | null): AIResponse | null {
+  const negated =
+    /\b(not|n't|never|no longer|without)\b[^.?]*\b(updat|chang|revis|touch|refresh)/i.test(q) ||
+    /\b(stale|outdated|out of date|overdue|missed|skipped|left out|fell through|behind)\b/i.test(q) ||
+    /\bolder than\b|\bhaven'?t\b|\bhasn'?t\b|\bhave not\b|\bhas not\b/i.test(q)
+  if (!negated) return null
+  if (!/updat|chang|revis|touch|refresh|stale|outdated|overdue|missed|skipped|older/i.test(q)) return null
+
+  const days = parseWindowDays(q)
+  const cutoff = cutoffISO(days)
+  const cf = categoryFilter(q)
+  const all = clientDocs(clientId).filter((d) => (cf ? d.category === cf.cat : true))
+  if (!all.length) return null
+
+  const stale = all
+    .filter((d) => d.versions[d.versions.length - 1].date < cutoff)
+    .sort((a, b) =>
+      a.versions[a.versions.length - 1].date.localeCompare(b.versions[b.versions.length - 1].date),
+    )
+
+  const scope = cf ? cf.label : 'documents'
+  const win = humanWindow(days)
+  const fresh = all.length - stale.length
+
+  if (!stale.length) {
+    return {
+      text: `Good news — **all ${all.length} ${scope}** in the repository have been updated within the last ${win}. Nothing was missed.`,
+      cites: [],
+      suggestions: SUGGESTIONS,
+    }
+  }
+
+  const shown = stale.slice(0, 15)
+  const headline =
+    stale.length === 1
+      ? `**1 of your ${all.length} ${scope}** has **not** been updated in the last ${win}. The other ${fresh} are current — this is the one that got missed:`
+      : `**${stale.length} of your ${all.length} ${scope}** have **not** been updated in the last ${win} (${fresh} are current). Oldest first:`
+
+  return {
+    text:
+      `${headline}\n\n${shown.map(docLine).join('\n')}` +
+      (stale.length > shown.length ? `\n\n…and ${stale.length - shown.length} more.` : ''),
+    cites: shown.map((d) => ({
+      docId: d.id,
+      name: d.name,
+      v: d.versions[d.versions.length - 1].v,
+    })),
+    table: {
+      headers: ['Document', 'Category', 'Current version', 'Last updated', 'Days ago'],
+      rows: shown.map((d) => {
+        const l = d.versions[d.versions.length - 1]
+        return [
+          d.name,
+          d.category,
+          `v${l.v}`,
+          fmtDate(l.date),
+          Math.round((Date.now() - new Date(l.date + 'T00:00:00').getTime()) / DAY_MS),
+        ]
+      }),
+    },
+    suggestions: SUGGESTIONS,
+  }
+}
+
+/**
+ * POSITIVE date question — "what changed in the last 90 days". Filters to
+ * documents actually inside the window rather than just showing the newest.
+ */
 function answerRecent(q: string, clientId: string | null): AIResponse | null {
-  if (!/recent|lately|\bnew(ly)?\b|last \d+\s*(day|week|month)s?|past \d+|what'?s new|changed (recently|lately|in the last)/i.test(q)) return null
-  const docs = clientDocs(clientId)
-  // if the query clearly names one document, let the version handler take it
-  if (bestDoc(docs, q)) return null
+  if (!/recent|lately|\bnew(ly)?\b|last \d+\s*(day|week|month)s?|past \d+|what'?s new|changed (recently|lately|in the last)|updated in the/i.test(q)) return null
+  const cf = categoryFilter(q)
+  const docs = clientDocs(clientId).filter((d) => (cf ? d.category === cf.cat : true))
+  // if the query clearly names one specific document, let the version handler take it
+  if (!cf && bestDoc(docs, q)) return null
 
-  const ranked = docs
+  const days = parseWindowDays(q)
+  const cutoff = cutoffISO(days)
+  const win = humanWindow(days)
+  const scope = cf ? cf.label : 'documents'
+
+  const inWindow = docs
     .map((d) => ({ d, latest: d.versions[d.versions.length - 1] }))
+    .filter((x) => x.latest.date >= cutoff)
     .sort((a, b) => b.latest.date.localeCompare(a.latest.date))
-    .slice(0, 8)
-  if (!ranked.length) return null
 
-  const lines = ranked
+  if (!inWindow.length) {
+    return {
+      text: `No ${scope} in the repository have been updated in the last ${win}. The most recent change was ${fmtDate(
+        docs
+          .map((d) => d.versions[d.versions.length - 1].date)
+          .sort()
+          .reverse()[0],
+      )}.`,
+      cites: [],
+      suggestions: SUGGESTIONS,
+    }
+  }
+
+  const shown = inWindow.slice(0, 10)
+  const lines = shown
     .map(({ d, latest }) => `• **${d.name}** — v${latest.v}, ${fmtDate(latest.date)} — ${latest.note}`)
     .join('\n')
   return {
-    text: `Here are the most recently updated documents in the repository (newest first):\n\n${lines}`,
-    cites: ranked.map(({ d, latest }) => ({ docId: d.id, name: d.name, v: latest.v })),
+    text:
+      `**${inWindow.length} ${scope}** ${inWindow.length === 1 ? 'has' : 'have'} been updated in the last ${win}` +
+      (cf ? ` (out of ${docs.length} total)` : '') +
+      `:\n\n${lines}` +
+      (inWindow.length > shown.length ? `\n\n…and ${inWindow.length - shown.length} more.` : ''),
+    cites: shown.map(({ d, latest }) => ({ docId: d.id, name: d.name, v: latest.v })),
     suggestions: SUGGESTIONS,
   }
 }
@@ -377,6 +521,9 @@ export function askAI(query: string, clientId: string | null): AIResponse {
   }
 
   const handlers = [
+    // stale-check runs first: it is the negation of the "recent" question and
+    // both match the same date phrasing.
+    () => answerStale(q, clientId),
     () => answerRecent(q, clientId),
     () => answerInventory(q, clientId),
     () => answerVersions(q, clientId),
