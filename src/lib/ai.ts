@@ -293,18 +293,20 @@ function fmtDate(iso: string) {
 
 const DAY_MS = 86_400_000
 
-/** Days implied by "30 days" / "6 weeks" / "3 months" / "a year". Default 30. */
+const UNIT_DAYS: Record<string, number> = { day: 1, week: 7, month: 30, year: 365 }
+
+/**
+ * Days implied by the question: "30 days", "6 weeks", "3 months", and the
+ * unnumbered forms "the last year" / "a month" / "past week" (which are common
+ * phrasings and must not silently fall back to the 30-day default).
+ */
 function parseWindowDays(q: string): number {
-  const m = q.match(/(\d+)\s*(day|week|month|year)s?/i)
-  if (m) {
-    const n = parseInt(m[1], 10)
-    const unit = m[2].toLowerCase()
-    return unit === 'day' ? n : unit === 'week' ? n * 7 : unit === 'month' ? n * 30 : n * 365
+  const numbered = q.match(/(\d+)\s*(day|week|month|year)s?/i)
+  if (numbered) {
+    return parseInt(numbered[1], 10) * UNIT_DAYS[numbered[2].toLowerCase()]
   }
-  if (/\ba (day|week|month|year)\b/i.test(q)) {
-    const u = q.match(/\ba (day|week|month|year)\b/i)![1].toLowerCase()
-    return u === 'day' ? 1 : u === 'week' ? 7 : u === 'month' ? 30 : 365
-  }
+  const bare = q.match(/\b(?:a|an|the|last|past|this)\s+(day|week|month|year)\b/i)
+  if (bare) return UNIT_DAYS[bare[1].toLowerCase()]
   return 30
 }
 
