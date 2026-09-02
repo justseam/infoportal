@@ -11,6 +11,7 @@ import { Assistant } from './pages/Assistant'
 import { Billing } from './pages/Billing'
 import { Help } from './pages/Help'
 import { Admin } from './pages/Admin'
+import { AIUsage } from './pages/AIUsage'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { persona } = useSession()
@@ -27,6 +28,8 @@ function RequireRole({ roles, children }: { roles: Role[]; children: ReactNode }
 
 const DOC_ROLES: Role[] = ['document', 'admin', 'super']
 const ADMIN_ROLES: Role[] = ['admin', 'super']
+/** AI cost data is Super Admin only — not visible to Internal Admin. */
+const SUPER_ONLY: Role[] = ['super']
 
 export default function App() {
   return (
@@ -47,6 +50,7 @@ export default function App() {
         <Route path="billing" element={<RequireRole roles={DOC_ROLES}><Billing /></RequireRole>} />
         <Route path="help" element={<Help />} />
         <Route path="admin" element={<RequireRole roles={ADMIN_ROLES}><Admin /></RequireRole>} />
+        <Route path="ai-usage" element={<RequireRole roles={SUPER_ONLY}><AIUsage /></RequireRole>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

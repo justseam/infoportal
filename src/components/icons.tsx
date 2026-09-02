@@ -116,6 +116,13 @@ export const IconThumbDown = ({ className }: P) => (
     <path d="M7 13l4 8a2 2 0 0 0 2-2v-4h5a2 2 0 0 0 2-2.3l-1.2-6A2 2 0 0 0 16.8 4H7" />
   </svg>
 )
+export const IconGauge = ({ className }: P) => (
+  <svg {...base(className)}>
+    <path d="M3 18a9 9 0 1 1 18 0" />
+    <path d="M12 18l4.5-5" />
+    <circle cx="12" cy="18" r="1.4" />
+  </svg>
+)
 export const IconChat = ({ className }: P) => (
   <svg {...base(className)}>
     <path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l.8-5.5A8 8 0 1 1 21 12z" />

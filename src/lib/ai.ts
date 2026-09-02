@@ -1,6 +1,8 @@
 import type { Doc, DocCategory, DocVersion, Invoice } from '../data/types'
 import { DOCS, INVOICES, CLIENTS, MONTH_LABEL } from '../data/mock'
 import { HELP_DOCS, productName } from '../data/help'
+import { isLive, loadSettings } from './aiSettings'
+import { askClaude } from './claudeClient'
 
 export interface AICite {
   docId: string
@@ -513,6 +515,32 @@ function answerSavings(q: string, clientId: string | null): AIResponse | null {
     cites: [],
     chart: { title: 'Physical mail cost vs eStatements+', unit: '$', series },
     suggestions: SUGGESTIONS,
+  }
+}
+
+/**
+ * Route a question to the live Claude API when live mode is configured, else
+ * to the simulated engine. Falls back to simulated on any API failure so the
+ * assistant never dead-ends in front of a client.
+ */
+export async function askAIAuto(
+  query: string,
+  clientId: string | null,
+  user: string,
+): Promise<{ answer: AIResponse; engine: 'live' | 'simulated'; error?: string }> {
+  const settings = loadSettings()
+  if (!isLive(settings)) {
+    return { answer: askAI(query, clientId), engine: 'simulated' }
+  }
+  try {
+    const answer = await askClaude(query, { settings, clientId, user })
+    return { answer: { ...answer, suggestions: SUGGESTIONS }, engine: 'live' }
+  } catch (err) {
+    return {
+      answer: askAI(query, clientId),
+      engine: 'simulated',
+      error: err instanceof Error ? err.message : String(err),
+    }
   }
 }
 

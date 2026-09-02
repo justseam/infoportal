@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '../state/session'
-import { askAI, SUGGESTION_GROUPS } from '../lib/ai'
+import { askAIAuto, SUGGESTION_GROUPS } from '../lib/ai'
 import type { AIResponse } from '../lib/ai'
-import { Card, LineChart, Legend } from '../components/ui'
+import { Card, LineChart, Legend, Badge } from '../components/ui'
 import { IconSparkles, IconSend, IconChevron } from '../components/icons'
 
 interface Turn {
   q: string
   a: AIResponse
+  engine: 'live' | 'simulated'
+  error?: string
 }
 
 /** render **bold** and newline/bullet text from the simulated engine */
@@ -29,7 +31,7 @@ function RichText({ text }: { text: string }) {
 }
 
 export function Assistant() {
-  const { activeClientId, logActivity } = useSession()
+  const { activeClientId, logActivity, persona } = useSession()
   const navigate = useNavigate()
   const location = useLocation()
   const [turns, setTurns] = useState<Turn[]>([])
@@ -44,12 +46,19 @@ export function Assistant() {
     setInput('')
     setThinking(true)
     logActivity('view', `AI query: "${q}"`)
-    // brief simulated latency so it feels like it's working
-    setTimeout(() => {
-      const a = askAI(q, activeClientId)
-      setTurns((prev) => [...prev, { q, a }])
-      setThinking(false)
-    }, 480)
+    const started = performance.now()
+    void askAIAuto(q, activeClientId, persona?.name ?? 'unknown')
+      .then(({ answer, engine, error }) => {
+        // On the simulated path, hold the spinner briefly so the answer doesn't
+        // snap in instantly; the live path has real latency of its own.
+        const elapsed = performance.now() - started
+        const pad = engine === 'simulated' ? Math.max(0, 480 - elapsed) : 0
+        window.setTimeout(() => {
+          setTurns((prev) => [...prev, { q, a: answer, engine, error }])
+          setThinking(false)
+        }, pad)
+      })
+      .catch(() => setThinking(false))
   }
 
   // accept query handed off from the dashboard
@@ -147,6 +156,17 @@ export function Assistant() {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                )}
+
+                {t.engine === 'live' && (
+                  <div className="mt-3 flex items-center gap-2">
+                    <Badge tone="teal">Live Claude API</Badge>
+                  </div>
+                )}
+                {t.error && (
+                  <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                    Live API call failed — answered with the simulated engine instead. {t.error}
                   </div>
                 )}
 

@@ -66,13 +66,24 @@ export function LineChart({ series, unit = '$', height = 200 }: { series: { labe
   const padT = 12
   const padR = 12
   const all = series.flatMap((s) => s.points.map((p) => p.y))
-  const max = Math.max(...all, 1)
+  // Floor at the data's own max, not at 1 — a hardcoded floor of 1 flattens
+  // any series whose values are all below a dollar against the axis.
+  const max = Math.max(...all) || 1
   const xs = series[0]?.points.map((p) => p.x) ?? []
   const innerW = W - padL - padR
   const innerH = H - padT - padB
   const xPos = (i: number) => padL + (xs.length === 1 ? innerW / 2 : (i / (xs.length - 1)) * innerW)
   const yPos = (v: number) => padT + innerH - (v / max) * innerH
-  const fmt = (v: number) => (unit === '$' ? '$' + Math.round(v / 1000) + 'k' : String(v))
+  // Scale the axis to the data. Billing charts run to tens of thousands of
+  // dollars; AI-cost charts run to fractions of one. A fixed "$Nk" formatter
+  // renders every gridline on the latter as "$0k".
+  const fmt = (v: number) => {
+    if (unit !== '$') return String(Math.round(v))
+    if (max >= 1000) return `$${Math.round(v / 1000)}k`
+    if (max >= 10) return `$${v.toFixed(0)}`
+    if (max >= 1) return `$${v.toFixed(2)}`
+    return `$${v.toFixed(3)}`
+  }
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full">

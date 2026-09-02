@@ -7,6 +7,7 @@ import { ROLE_LABEL } from '../data/types'
 import {
   IconBell,
   IconFolder,
+  IconGauge,
   IconGrid,
   IconLifebuoy,
   IconLogout,
@@ -30,6 +31,8 @@ const NAV: NavItem[] = [
   { to: '/app/billing', label: 'Invoicing & Billing', icon: IconReceipt, roles: ['document', 'admin', 'super'] },
   { to: '/app/help', label: 'Help Site', icon: IconLifebuoy, roles: ['help', 'document', 'admin', 'super'] },
   { to: '/app/admin', label: 'Admin & Audit', icon: IconShield, roles: ['admin', 'super'] },
+  // Super Admin only — AI spend is not exposed to Internal Admin.
+  { to: '/app/ai-usage', label: 'AI Usage & Cost', icon: IconGauge, roles: ['super'] },
 ]
 
 export function Layout() {
