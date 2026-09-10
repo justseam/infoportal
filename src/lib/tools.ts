@@ -96,6 +96,25 @@ export const TOOL_SCHEMAS: ToolSchema[] = [
     },
   },
   {
+    name: 'get_documents_by_source',
+    description:
+      "Group data-driven documents (notices, statement designs, tax forms) by the SYSTEM that produces their data file, and say whether that system is the FI's core processor. Call this for any question about where documents come from, which are core vs non-core, what is built in house, ancillary/vendor systems, or scoping a core conversion.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        origin: {
+          type: 'string',
+          description:
+            "Which side to return: 'core', 'non-core', or 'all' for the full breakdown. Default 'all'.",
+        },
+        category: {
+          type: 'string',
+          description: "Optional category filter, e.g. 'Notice Designs'.",
+        },
+      },
+    },
+  },
+  {
     name: 'get_repository_summary',
     description:
       'Get counts of documents and versions grouped by category. Call this for "how many documents do we have" or any inventory/overview question.',
@@ -220,6 +239,7 @@ export function runTool(name: string, input: ToolInput, clientId: string | null)
           tags: d.tags,
           current_version: latest(d).v,
           last_updated: latest(d).date,
+          ...(d.source ? { source_system: d.source.system, on_core: d.source.core } : {}),
         })),
       }
     }
@@ -253,6 +273,47 @@ export function runTool(name: string, input: ToolInput, clientId: string | null)
         from: { version: a.v, date: a.date, note: a.note, size_kb: a.sizeKB },
         to: { version: b.v, date: b.date, note: b.note, size_kb: b.sizeKB },
         size_delta_kb: b.sizeKB - a.sizeKB,
+      }
+    }
+
+    case 'get_documents_by_source': {
+      const origin = (str(input.origin) ?? 'all').toLowerCase()
+      const scoped = matchCategory(docs, str(input.category)).filter((d) => d.source)
+      const coreName =
+        CLIENTS.find((c) => c.id === clientId)?.coreSystem ?? 'the core processor'
+      const wanted =
+        origin === 'core'
+          ? scoped.filter((d) => d.source!.core)
+          : origin === 'non-core' || origin === 'noncore'
+            ? scoped.filter((d) => !d.source!.core)
+            : scoped
+
+      const by = new Map<string, Doc[]>()
+      for (const d of wanted) {
+        const k = d.source!.system
+        if (!by.has(k)) by.set(k, [])
+        by.get(k)!.push(d)
+      }
+      return {
+        core_system: coreName,
+        total_in_scope: scoped.length,
+        core_count: scoped.filter((d) => d.source!.core).length,
+        non_core_count: scoped.filter((d) => !d.source!.core).length,
+        systems: [...by.entries()]
+          .sort((a, b) => b[1].length - a[1].length)
+          .map(([system, list]) => ({
+            system,
+            is_core: list[0].source!.core,
+            why: list[0].source!.note,
+            document_count: list.length,
+            documents: list.slice(0, 25).map((d) => ({
+              id: d.id,
+              name: d.name,
+              category: d.category,
+              current_version: latest(d).v,
+              last_updated: latest(d).date,
+            })),
+          })),
       }
     }
 
@@ -329,12 +390,13 @@ export function runTool(name: string, input: ToolInput, clientId: string | null)
 
 export const SYSTEM_PROMPT = `You are the InfoPORTAL assistant for a financial institution's document repository, built by InfoIMAGE.
 
-You answer questions about the client's documents, their version histories, their InfoIMAGE invoices, and the InfoIMAGE help site. You have tools that query the repository directly — always use them rather than guessing, and never invent a document name, version number, or date that a tool did not return.
+You answer questions about the client's documents, their version histories, the systems that produce them, their InfoIMAGE invoices, and the InfoIMAGE help site. You have tools that query the repository directly — always use them rather than guessing, and never invent a document name, version number, or date that a tool did not return.
 
 Guidelines:
 - Lead with the answer. State the finding in the first sentence, then supporting detail.
 - Be concise. These users are compliance officers and operations staff who want the fact, not an essay.
 - Cite documents by their exact name and current version.
 - When a tool returns counts, use them precisely ("1 of 100 notices", not "a few").
+- Notices, statement designs and tax forms are each composed from a data file. Some of those files come off the FI's core processor and some do not — get_documents_by_source is the only reliable way to tell which. Never assume a document is core-generated because of its name.
 - If a tool returns no results, say so plainly rather than padding.
 - You cannot modify documents, upload files, or change anything — you are read-only. Say so if asked.`

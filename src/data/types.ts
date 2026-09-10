@@ -14,6 +14,7 @@ export interface Client {
   cid: string // InfoIMAGE client id
   accent: string // brand accent hex for white-label tint
   members: number
+  coreSystem: string // the FI's core processor, e.g. "Symitar Episys"
 }
 
 export interface Persona {
@@ -56,6 +57,18 @@ export interface DocVersion {
   note: string // changelog for this version
 }
 
+/**
+ * Where a data-driven document's source data originates. Notices, statements
+ * and tax forms are composed from a data file — some of those files come off
+ * the FI's core processor, others from ancillary systems or are built in house.
+ * Knowing which is which drives conversion scoping and custom-programming work.
+ */
+export interface DocSource {
+  system: string // 'Symitar Episys', 'MeridianLink Consumer', 'In-house / Marketing'
+  core: boolean // true when the FI's core processor produces the data file
+  note: string // why it sits where it does
+}
+
 export interface Doc {
   id: string
   clientId: string
@@ -64,6 +77,8 @@ export interface Doc {
   fileType: FileType
   tags: string[]
   versions: DocVersion[] // newest last
+  /** set on data-driven categories (notices, statements, tax forms) only */
+  source?: DocSource
 }
 
 export interface InvoiceLine {

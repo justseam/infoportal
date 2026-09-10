@@ -71,6 +71,20 @@ export function DocumentDetail() {
                 </>
               )}
             </div>
+            {doc.source && (
+              <div className="mt-3 flex items-start gap-2 rounded-lg border border-line bg-canvas px-3 py-2">
+                <span className="shrink-0 whitespace-nowrap">
+                  <Badge tone={doc.source.core ? 'teal' : 'amber'}>
+                    {doc.source.core ? 'Core' : 'Non-core'}
+                  </Badge>
+                </span>
+                <div className="text-xs text-ink-soft">
+                  <span className="font-semibold text-brand-navy">{doc.source.system}</span>
+                  {' — '}
+                  {doc.source.note}
+                </div>
+              </div>
+            )}
             <div className="mt-3 flex flex-wrap gap-1.5">
               {doc.tags.map((t) => (
                 <span key={t} className="rounded bg-canvas px-2 py-0.5 text-xs text-ink-soft">

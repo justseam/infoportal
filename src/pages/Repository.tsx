@@ -11,6 +11,7 @@ export function Repository() {
   const { activeClientId } = useSession()
   const navigate = useNavigate()
   const [cat, setCat] = useState<DocCategory | 'all'>('all')
+  const [origin, setOrigin] = useState<'all' | 'core' | 'non-core'>('all')
   const [q, setQ] = useState('')
   const client = CLIENTS.find((c) => c.id === activeClientId)
 
@@ -18,6 +19,9 @@ export function Repository() {
 
   const filtered = docs.filter((d) => {
     if (cat !== 'all' && d.category !== cat) return false
+    // only data-driven documents have a source, so an origin filter also
+    // narrows away contracts, SOWs and the like
+    if (origin !== 'all' && (!d.source || d.source.core !== (origin === 'core'))) return false
     if (q) {
       const hay = (d.name + ' ' + d.tags.join(' ')).toLowerCase()
       if (!hay.includes(q.toLowerCase())) return false
@@ -26,6 +30,8 @@ export function Repository() {
   })
 
   const counts = CATEGORIES.map((c) => ({ c, n: docs.filter((d) => d.category === c).length }))
+  const sourced = docs.filter((d) => d.source)
+  const coreCount = sourced.filter((d) => d.source!.core).length
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -58,6 +64,23 @@ export function Repository() {
           ))}
       </div>
 
+      {sourced.length > 0 && (
+        <div className="mb-5 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+            Data source
+          </span>
+          <Chip active={origin === 'all'} onClick={() => setOrigin('all')}>
+            Any
+          </Chip>
+          <Chip active={origin === 'core'} onClick={() => setOrigin('core')}>
+            {client?.coreSystem ?? 'Core'} ({coreCount})
+          </Chip>
+          <Chip active={origin === 'non-core'} onClick={() => setOrigin('non-core')}>
+            Outside the core ({sourced.length - coreCount})
+          </Chip>
+        </div>
+      )}
+
       {filtered.length === 0 ? (
         <Card className="p-10 text-center text-ink-soft">No documents match your filters.</Card>
       ) : (
@@ -76,6 +99,20 @@ export function Repository() {
                 </div>
                 <div className="mt-3 line-clamp-2 text-sm font-bold text-brand-navy">{d.name}</div>
                 <div className="mt-1 text-xs text-ink-soft">{d.category}</div>
+                {d.source && (
+                  <div className="mt-2 flex items-center gap-1.5">
+                    <span
+                      className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                        d.source.core
+                          ? 'bg-teal-50 text-teal-700'
+                          : 'bg-amber-50 text-amber-700'
+                      }`}
+                    >
+                      {d.source.core ? 'Core' : 'Non-core'}
+                    </span>
+                    <span className="truncate text-[10px] text-ink-soft">{d.source.system}</span>
+                  </div>
+                )}
                 <div className="mt-3 flex items-center gap-1.5 text-xs text-ink-soft">
                   <IconClock className="h-3.5 w-3.5" />
                   {d.versions.length} version{d.versions.length > 1 ? 's' : ''} · updated {latest.date}

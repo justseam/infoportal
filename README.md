@@ -36,11 +36,18 @@ personas are siloed to their own organization's repository.
 - **Document repository** — per-client, siloed; categories for Contracts, SOWs,
   Legal, Statement Designs, Notice Designs, Tax Forms, Statements, Assets;
   search + category filters.
+- **Data source tracking** — every data-driven document (notices, statement
+  designs, tax forms) records the system that produces its data file and whether
+  that system is the client's core processor. Summit CU runs Symitar Episys and
+  46 of its 100 notices originate elsewhere — the card processor, the collections
+  platform, mortgage servicing, the LOS, or in house. Filter the repository by
+  **Core / Outside the core**, or just ask the assistant.
 - **Version control per document** — full version timeline, view any version in
   a simulated viewer, download, and **compare two versions** side by side.
 - **AI assistant (headline feature)** — ask in plain English:
   - "Show me previous versions of the monthly statement design"
   - "What changed between v2 and v3 of the tax form?"
+  - "Which notices are coming from outside the core?"
   - "Compare our print vs postage spend over the last 5 months"
   - "How much have we spent on eStatements+ this year?"
 
